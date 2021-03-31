@@ -13,10 +13,10 @@ process_mounts() {
     echo "${MODE} mount phase"
     echo "-------------------------------------"
 
-    for line in $mountconf; do
-        src=$(echo $line | cut -d ' ' -f1)
-        target=$(echo $line | cut -d ' ' -f2)
-        mode=$(echo $line | cut -d ' ' -f3)
+    echo $mountconf | while read -r line; do
+        src=$(echo $line | cut -d' ' -f1)
+        target=$(echo $line | cut -d' ' -f2)
+        mode=$(echo $line | cut -d' ' -f3)
 
         if [[ $mode == $MODE ]]; then
             echo "mounting /data/$src -> /home/gmod/$target"
