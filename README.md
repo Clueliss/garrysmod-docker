@@ -32,6 +32,8 @@ You can read more about these ports on the [official srcds documentation][srcds-
 When mounting volumes permission issues between host and container arise. To ensure the container accesses the volumes as the correct user
 the UID and GID can be set.
 
+Defaults are PUID=0, PGID=0.
+
 **`PRODUCTION`**
 
 Set if the server should be opened in production mode. This will make hot reload modifications to lua files not working. Possible values are `0`(default) or `1`.
