@@ -11,7 +11,7 @@ process_mounts() {
     echo "${MODE} mount phase"
     echo "-------------------------------------"
 
-    cat /etc/mounttab.conf | sed 's/[[:space:]]/ /g' | tr -s ' ' | grep -vE '^#' | while read -r line; do
+    cat /etc/mounttab.conf | sed 's/[[:blank:]]/ /g' | tr -s ' ' | grep -vE '^#' | while read -r line; do
         src=$(echo $line | cut -d' ' -f1)
         target=$(echo $line | cut -d' ' -f2)
         mode=$(echo $line | cut -d' ' -f3)
