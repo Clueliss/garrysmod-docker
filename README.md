@@ -4,10 +4,8 @@
 Run a Garry's Mod server easily inside a docker container
 
 ## Supported tags
-* `latest` - the most recent production-ready image, based on `debian`
-* `debian` - a gmod server based on debian
-* `debian-x64` - (NOT STABLE YET) a gmod server based on debian but running on beta version of srcds for x64 bit CPUs
-* `debian-root` - same as `debian` but executed as root user
+* `latest` - a gmod server based on debian
+* `latest-x64` - (NOT STABLE YET) a gmod server based on debian but running on beta version of srcds for x64 bit CPUs
 
 ## Features
 
@@ -28,6 +26,11 @@ The container uses the following ports (by default):
 You can read more about these ports on the [official srcds documentation][srcds-connectivity].
 
 ### Environment variables
+
+**`PUID`/`PGID`**
+
+When mounting volumes permission issues between host and container arise. To ensure the container accesses the volumes as the correct user
+the UID and GID can be set.
 
 **`PRODUCTION`**
 
