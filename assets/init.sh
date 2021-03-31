@@ -7,13 +7,11 @@ process_mounts() {
         echo "skipping ${MODE} mountphase (envvar USEMOUNTCONF not set)"
         return 0
     fi
-    
-    mountconf=$(cat /etc/mounttab.conf | sed 's/[[:space:]]/ /g' | tr -s ' ' | grep -vE '^#')
 
     echo "${MODE} mount phase"
     echo "-------------------------------------"
 
-    echo $mountconf | while read -r line; do
+    cat /etc/mounttab.conf | sed 's/[[:space:]]/ /g' | tr -s ' ' | grep -vE '^#' | while read -r line; do
         src=$(echo $line | cut -d' ' -f1)
         target=$(echo $line | cut -d' ' -f2)
         mode=$(echo $line | cut -d' ' -f3)
