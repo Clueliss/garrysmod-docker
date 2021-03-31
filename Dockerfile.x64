@@ -10,7 +10,7 @@ ENV DEBIAN_FRONTEND="noninteractive"
 RUN dpkg --add-architecture i386 && \
 	apt-get update && \
 	apt-get -y --no-install-recommends --no-install-suggests install \
-    psmisc wget ca-certificates tar gcc g++ libgcc1 libssl1.1 libtinfo5 lib32z1 gdb libsdl2-2.0-0 libsdl1.2debian libfontconfig
+    psmisc wget ca-certificates tar gcc g++ libgcc1 libssl1.1 libtinfo5 lib32z1 gdb libsdl1.2debian libfontconfig
 
 # CLEAN UP
 RUN apt-get clean
