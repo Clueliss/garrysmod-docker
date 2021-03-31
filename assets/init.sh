@@ -8,7 +8,7 @@ process_mounts() {
         return 0
     fi
     
-    mountconf=$(cat /etc/gmounttab.conf | sed 's/[[:space:]]/ /g' | tr -s ' ' | grep -vE '^#')
+    mountconf=$(cat /etc/mounttab.conf | sed 's/[[:space:]]/ /g' | tr -s ' ' | grep -vE '^#')
 
     echo "${MODE} mount phase"
     echo "-------------------------------------"
@@ -56,7 +56,7 @@ Update
 -------------------------------------
 "
 
-# su steam -P -c /home/gmod/update.sh
+su steam -P -c /home/gmod/update.sh
 
 echo "-------------------------------------"
 
