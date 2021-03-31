@@ -1,20 +1,22 @@
 # BASE IMAGE
 FROM debian:buster-slim
 
-LABEL maintainer="ceifa"
+LABEL maintainer="Clueliss"
 LABEL description="A structured Garry's Mod dedicated server under a debian linux image"
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 # INSTALL NECESSARY PACKAGES
-RUN dpkg --add-architecture i386 && apt-get update && apt-get -y --no-install-recommends --no-install-suggests install \
-    wget ca-certificates tar gcc g++ lib32gcc1 libgcc1 libcurl4-gnutls-dev:i386 libssl1.1 libcurl4:i386 libtinfo5 lib32z1 lib32stdc++6 libncurses5:i386 libcurl3-gnutls:i386 gdb libsdl1.2debian libfontconfig net-tools
+RUN dpkg --add-architecture i386 && \
+	apt-get update && \
+	apt-get -y --no-install-recommends --no-install-suggests install \
+    psmisc wget ca-certificates tar gcc g++ lib32gcc1 libgcc1 libcurl4-gnutls-dev:i386 libssl1.1 libcurl4:i386 libtinfo5 lib32z1 lib32stdc++6 libncurses5:i386 libcurl3-gnutls:i386 gdb libsdl1.2debian libfontconfig net-tools
 
 # CLEAN UP
 RUN apt-get clean
 RUN rm -rf /tmp/* /var/lib/apt/lists/*
 
-# SET STEAM USER
-RUN useradd -d /home/gmod -m steam
+# CREATE STEAM USER
+RUN useradd --home-dir /home/gmod --create-home steam
 USER steam
 RUN mkdir /home/gmod/server && mkdir /home/gmod/steamcmd
 
@@ -50,9 +52,13 @@ RUN touch /home/gmod/server/garrysmod/sv.db
 # CREATE CACHE FOLDERS
 RUN mkdir -p /home/gmod/server/steam_cache/content && mkdir -p /home/gmod/server/garrysmod/cache/srcds
 
+# USER ID AND GROUP ID
+ENV PGID="0"
+ENV PUID="0"
+
 # PORT FORWARDING
 # https://developer.valvesoftware.com/wiki/Source_Dedicated_Server#Connectivity
-EXPOSE 27015
+EXPOSE 27015/tcp
 EXPOSE 27015/udp
 EXPOSE 27005/udp
 
@@ -62,9 +68,21 @@ ENV GAMEMODE="sandbox"
 ENV MAP="gm_construct"
 ENV PORT="27015"
 
+# ADD ptyrun
+COPY assets/ptyrun.sh /usr/local/bin/ptyrun
+RUN chmod +x /usr/local/bin/ptyrun
+
+# ADD INIT SCRIPT
+COPY --chown=steam:steam assets/init.sh /home/gmod/init.sh
+RUN chmod +x /home/gmod/init.sh
+
 # ADD START SCRIPT
 COPY --chown=steam:steam assets/start.sh /home/gmod/start.sh
 RUN chmod +x /home/gmod/start.sh
+
+# ADD UPDATE SCRIPT
+COPY --chown=steam:steam assets/update.sh /home/gmod/update.sh
+RUN chmod +x /home/gmod/update.sh
 
 # CREATE HEALTH CHECK
 COPY --chown=steam:steam assets/health.sh /home/gmod/health.sh
@@ -73,4 +91,6 @@ HEALTHCHECK --start-period=10s \
     CMD /home/gmod/health.sh
 
 # START THE SERVER
-CMD ["/home/gmod/start.sh"]
+USER root
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["/home/gmod/init.sh", "/home/gmod/start.sh"]

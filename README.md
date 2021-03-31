@@ -8,9 +8,6 @@ Run a Garry's Mod server easily inside a docker container
 * `debian` - a gmod server based on debian
 * `debian-x64` - (NOT STABLE YET) a gmod server based on debian but running on beta version of srcds for x64 bit CPUs
 * `debian-root` - same as `debian` but executed as root user
-* `debian-post` - same as `debian` but the server is installed with the container starting
-* `debian-post-root` - same as `debian-post` but executed as root user
-* `ubuntu` - a gmod server based on ubuntu
 
 ## Features
 
@@ -64,18 +61,26 @@ Set the server GSLT credential to be used.
 
 Set any other custom args you want to pass to srcds runner.
 
+**`USEMOUNTCONF`**
+
+Enable more precise control at which time directories are mounted into the server tree
+this is useful if you do your own balancing work on entities and don't
+want that those changes to disappear when the server updates
+
 ### Directory structure
 It's not the full directory tree, I just put the ones I thought most important
 
 ```cs
-📦 /home/gmod // The server root
+⚙️/etc/mounttab.conf // Configure deferred mounting into the /home/gmod tree (see below)
+📁/data // Source directory for deferred mounting (see below)
+📦/home/gmod // The server root
 |__📁steamcmd // Steam cmd, used to update the server when needed
 |__📁mounts // All third party games should be installed here
 |  |  |__📁cstrike // Counter strike: Source comes installed as default
 |__📁server
 |  |__📁garrysmod
 |  |  |__📁addons // Put your addons here
-|  |  |__📁gamemodes // Put your gamemodes here
+|  |  |__📁gamemodes
 |  |  |__📁data
 |  |  |__📁cfg
 |  |  |  |__⚙️server.cfg
@@ -84,8 +89,27 @@ It's not the full directory tree, I just put the ones I thought most important
 |  |  |__💾sv.db
 |  |__📃srcds_run
 |__📃start.sh // Script to start the server
+|__📃update.sh // Script to update the server
 |__📃update.txt // Steam cmd script to run before start the server
 ```
+
+### mounttab.conf
+
+controls **when**, **where** and **which** directories inside of `/data` will be bind-mounted into `/home/gmod`
+each line is one mount entry, the fields are tab seperated
+
+
+The following example config will bind-mount `/data/steam_cache` onto `/home/gmod/server/steam_cache` _before_ updating the server
+and bind-mount `/data/garrysmod`  onto `/home/gmod/server/garrysmod` _after_ updating the server to preserve changes in that directory
+
+```
+steam_cache	server/steam_cache	early
+garrysmod	server/garrysmod	deferred
+```
+
+the `early` specifier really only exist to make it possible to have one unified configuration file for all mounting
+so that the configuration isn't split between the `docker-compose.yml` and this file
+
 
 ## Examples
 

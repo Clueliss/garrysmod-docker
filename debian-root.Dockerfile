@@ -1,13 +1,15 @@
 # BASE IMAGE
 FROM debian:buster-slim
 
-LABEL maintainer="ceifa"
+LABEL maintainer="Clueliss"
 LABEL description="A structured Garry's Mod dedicated server under a debian linux image"
 
 ENV DEBIAN_FRONTEND noninteractive
 # INSTALL NECESSARY PACKAGES
-RUN dpkg --add-architecture i386 && apt-get update && apt-get -y --no-install-recommends --no-install-suggests install \
-    wget ca-certificates tar gcc g++ lib32gcc1 libgcc1 libcurl4-gnutls-dev:i386 libssl1.1 libcurl4:i386 libtinfo5 lib32z1 lib32stdc++6 libncurses5:i386 libcurl3-gnutls:i386 gdb libsdl1.2debian libfontconfig net-tools
+RUN dpkg --add-architecture i386 && \
+    apt-get update && \
+    apt-get -y --no-install-recommends --no-install-suggests install \
+    psmisc wget ca-certificates tar gcc g++ lib32gcc1 libgcc1 libcurl4-gnutls-dev:i386 libssl1.1 libcurl4:i386 libtinfo5 lib32z1 lib32stdc++6 libncurses5:i386 libcurl3-gnutls:i386 gdb libsdl1.2debian libfontconfig net-tools
 
 # CLEAN UP
 RUN apt-get clean
@@ -64,6 +66,10 @@ ENV PORT="27015"
 COPY assets/start.sh /home/gmod/start.sh
 RUN chmod +x /home/gmod/start.sh
 
+# ADD UPDATE SCRIPT
+COPY assets/update.sh /home/gmod/update.sh
+RUN chmod +x /home/gmod/update.sh
+
 # CREATE HEALTH CHECK
 COPY assets/health.sh /home/gmod/health.sh
 RUN chmod +x /home/gmod/health.sh
@@ -71,4 +77,4 @@ HEALTHCHECK --start-period=10s \
     CMD /home/gmod/health.sh
 
 # START THE SERVER
-CMD ["/home/gmod/start.sh"]
+ENTRYPOINT ["/bin/bash", "-c", "/usr/local/bin/ptyrun.sh", "/home/gmod/start.sh"]

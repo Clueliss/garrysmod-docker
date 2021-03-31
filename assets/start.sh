@@ -1,4 +1,5 @@
 #!/bin/bash
+
 if [ -n "${NAME}" ];
 then
     ARGS="+hostname \"${NAME}\" ${ARGS}"
@@ -30,9 +31,6 @@ echo "Starting server on ${MODE} mode..."
     -game garrysmod \
     -norestart \
     -strictportbind \
-    -autoupdate \
-    -steam_dir "/home/gmod/steamcmd" \
-    -steamcmd_script "/home/gmod/update.txt" \
     -port "${PORT}" \
     -maxplayers "${MAXPLAYERS}" \
     +gamemode "${GAMEMODE}" \
