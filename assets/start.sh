@@ -27,11 +27,12 @@ fi
 # START THE SERVER
 echo "Starting server on ${MODE} mode..."
 
-/home/gmod/server/srcds_run \
+exec /home/gmod/server/srcds_run \
     -game garrysmod \
     -norestart \
     -strictportbind \
     -port "${PORT}" \
+    -clientport "${CLIENTPORT}" \
     -maxplayers "${MAXPLAYERS}" \
     +gamemode "${GAMEMODE}" \
     +map "${MAP}" "${ARGS}"

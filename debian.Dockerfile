@@ -5,20 +5,20 @@ LABEL maintainer="Clueliss"
 LABEL description="A structured Garry's Mod dedicated server under a debian linux image"
 
 ENV DEBIAN_FRONTEND=noninteractive
+
 # INSTALL NECESSARY PACKAGES
 RUN dpkg --add-architecture i386 && \
 	apt-get update && \
 	apt-get -y --no-install-recommends --no-install-suggests install \
-    psmisc wget ca-certificates tar gcc g++ lib32gcc1 libgcc1 libcurl4-gnutls-dev:i386 libssl1.1 libcurl4:i386 libtinfo5 lib32z1 lib32stdc++6 libncurses5:i386 libcurl3-gnutls:i386 gdb libsdl1.2debian libfontconfig net-tools
+    psmisc wget ca-certificates tar gcc g++ lib32gcc1 libgcc1 libcurl4-gnutls-dev:i386 libssl1.1 libcurl4:i386 libtinfo5 lib32z1 lib32stdc++6 libncurses5:i386 libcurl3-gnutls:i386 gdb libsdl2-2.0-0:i386 libsdl1.2debian libfontconfig
 
 # CLEAN UP
 RUN apt-get clean
 RUN rm -rf /tmp/* /var/lib/apt/lists/*
 
 # CREATE STEAM USER
-RUN useradd --home-dir /home/gmod --create-home steam
-USER steam
-RUN mkdir /home/gmod/server && mkdir /home/gmod/steamcmd
+RUN useradd --no-create-home steam
+RUN mkdir -p /home/gmod/server && mkdir /home/gmod/steamcmd
 
 # INSTALL STEAMCMD
 RUN wget -P /home/gmod/steamcmd/ https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz \
@@ -26,8 +26,9 @@ RUN wget -P /home/gmod/steamcmd/ https://steamcdn-a.akamaihd.net/client/installe
     && rm -rf /home/gmod/steamcmd/steamcmd_linux.tar.gz
 
 # SETUP STEAMCMD TO DOWNLOAD GMOD SERVER
-COPY assets/update.txt /home/gmod/update.txt
-RUN /home/gmod/steamcmd/steamcmd.sh +runscript /home/gmod/update.txt +quit
+COPY assets/update.sh /home/gmod/update.sh
+RUN chmod +x /home/gmod/update.sh && \
+    /home/gmod/update.sh
 
 # SETUP CSS CONTENT
 RUN /home/gmod/steamcmd/steamcmd.sh +login anonymous \
@@ -67,30 +68,26 @@ ENV MAXPLAYERS="16"
 ENV GAMEMODE="sandbox"
 ENV MAP="gm_construct"
 ENV PORT="27015"
+ENV CLIENTPORT="27005"
+
+# ADD INIT SCRIPT
+COPY assets/init.sh /home/gmod/init.sh
+RUN chmod +x /home/gmod/init.sh
+
+# ADD START SCRIPT
+COPY assets/start.sh /home/gmod/start.sh
+RUN chmod +x /home/gmod/start.sh
+
+# CREATE HEALTH CHECK
+COPY assets/health.sh /home/gmod/health.sh
+RUN chmod +x /home/gmod/health.sh
+HEALTHCHECK --start-period=10s \
+    CMD /home/gmod/health.sh
 
 # ADD ptyrun
 COPY assets/ptyrun.sh /usr/local/bin/ptyrun
 RUN chmod +x /usr/local/bin/ptyrun
 
-# ADD INIT SCRIPT
-COPY --chown=steam:steam assets/init.sh /home/gmod/init.sh
-RUN chmod +x /home/gmod/init.sh
-
-# ADD START SCRIPT
-COPY --chown=steam:steam assets/start.sh /home/gmod/start.sh
-RUN chmod +x /home/gmod/start.sh
-
-# ADD UPDATE SCRIPT
-COPY --chown=steam:steam assets/update.sh /home/gmod/update.sh
-RUN chmod +x /home/gmod/update.sh
-
-# CREATE HEALTH CHECK
-COPY --chown=steam:steam assets/health.sh /home/gmod/health.sh
-RUN chmod +x /home/gmod/health.sh
-HEALTHCHECK --start-period=10s \
-    CMD /home/gmod/health.sh
-
 # START THE SERVER
-USER root
 ENTRYPOINT ["/bin/bash", "-c"]
-CMD ["/home/gmod/init.sh", "/home/gmod/start.sh"]
+CMD ["/home/gmod/init.sh"]

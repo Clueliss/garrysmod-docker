@@ -4,21 +4,21 @@ FROM debian:buster-slim
 LABEL maintainer="Clueliss"
 LABEL description="A structured Garry's Mod dedicated server under a debian linux image"
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND="noninteractive"
+
 # INSTALL NECESSARY PACKAGES
 RUN dpkg --add-architecture i386 && \
 	apt-get update && \
 	apt-get -y --no-install-recommends --no-install-suggests install \
-    psmisc wget ca-certificates tar gcc g++ libgcc1 libssl1.1 libtinfo5 lib32z1 gdb libsdl1.2debian libfontconfig net-tools unzip
+    psmisc wget ca-certificates tar gcc g++ libgcc1 libssl1.1 libtinfo5 lib32z1 gdb libsdl2-2.0-0 libsdl1.2debian libfontconfig
 
 # CLEAN UP
 RUN apt-get clean
 RUN rm -rf /tmp/* /var/lib/apt/lists/*
 
-# SET STEAM USER
-RUN useradd -d /home/gmod -m steam
-USER steam
-RUN mkdir /home/gmod/server && mkdir /home/gmod/steamcmd
+# CREATE STEAM USER
+RUN useradd --no-create-home steam
+RUN mkdir -p /home/gmod/server && mkdir /home/gmod/steamcmd
 
 # INSTALL STEAMCMD
 RUN wget -P /home/gmod/steamcmd/ https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz \
@@ -26,8 +26,9 @@ RUN wget -P /home/gmod/steamcmd/ https://steamcdn-a.akamaihd.net/client/installe
     && rm -rf /home/gmod/steamcmd/steamcmd_linux.tar.gz
 
 # SETUP STEAMCMD TO DOWNLOAD GMOD SERVER
-COPY assets/update-x64.txt /home/gmod/update.txt
-RUN /home/gmod/steamcmd/steamcmd.sh +runscript /home/gmod/update.txt +quit
+COPY assets/update-x64.sh /home/gmod/update.sh
+RUN chmod +x /home/gmod/update.sh && \
+    /home/gmod/update.sh
 
 # SETUP CSS CONTENT
 RUN /home/gmod/steamcmd/steamcmd.sh +login anonymous \
@@ -50,6 +51,10 @@ RUN touch /home/gmod/server/garrysmod/sv.db
 # CREATE CACHE FOLDERS
 RUN mkdir -p /home/gmod/server/steam_cache/content && mkdir -p /home/gmod/server/garrysmod/cache/srcds
 
+# USER ID AND GROUP ID
+ENV PGID="0"
+ENV PUID="0"
+
 # PORT FORWARDING
 # https://developer.valvesoftware.com/wiki/Source_Dedicated_Server#Connectivity
 EXPOSE 27015
@@ -61,20 +66,25 @@ ENV MAXPLAYERS="16"
 ENV GAMEMODE="sandbox"
 ENV MAP="gm_construct"
 ENV PORT="27015"
+ENV CLIENTPORT="27005"
+
+# ADD INIT SCRIPT
+COPY assets/init.sh /home/gmod/init.sh
+RUN chmod +x /home/gmod/init.sh
 
 # ADD START SCRIPT
-COPY --chown=steam:steam assets/start-x64.sh /home/gmod/start.sh
+COPY assets/start-x64.sh /home/gmod/start.sh
 RUN chmod +x /home/gmod/start.sh
 
-# ADD UPDATE SCRIPT
-COPY --chown=steam:steam assets/update.sh /home/gmod/update.sh
-RUN chmod +x /home/gmod/update.sh
-
 # CREATE HEALTH CHECK
-COPY --chown=steam:steam assets/health.sh /home/gmod/health.sh
+COPY assets/health.sh /home/gmod/health.sh
 RUN chmod +x /home/gmod/health.sh
 HEALTHCHECK --start-period=10s \
     CMD /home/gmod/health.sh
+
+# ADD ptyrun
+COPY assets/ptyrun.sh /usr/local/bin/ptyrun
+RUN chmod +x /usr/local/bin/ptyrun
 
 # START THE SERVER
 ENTRYPOINT ["/bin/bash", "-c"]

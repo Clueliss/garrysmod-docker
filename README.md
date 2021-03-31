@@ -21,7 +21,7 @@ Run a Garry's Mod server easily inside a docker container
 ## Documentation
 
 ### Ports
-The container uses the following ports:
+The container uses the following ports (by default):
 * `:27015 TCP/UDP` as the game transmission, pings and RCON port
 * `:27005 UDP` as the client port
 
@@ -52,6 +52,11 @@ Set the map gamemode on startup. Default is `gm_construct`.
 **`PORT`**
 
 Set the server port on container. Default is `27015`.
+
+**`CLIENTPORT`**
+
+**Warning**: for some unknown reason this feature does not seem to work.
+Set the client port on container. Default is `27005`.
 
 **`GSLT`**
 

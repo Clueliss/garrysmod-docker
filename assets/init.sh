@@ -10,10 +10,8 @@ process_mounts() {
     
     mountconf=$(cat /etc/gmounttab.conf | sed 's/[[:space:]]/ /g' | tr -s ' ' | grep -vE '^#')
 
-    echo "
-    ${MODE} mount phase
-    -------------------------------------
-    "
+    echo "${MODE} mount phase"
+    echo "-------------------------------------"
 
     for line in $mountconf; do
         src=$(echo $line | cut -d ' ' -f1)
@@ -29,25 +27,25 @@ process_mounts() {
     echo "-------------------------------------"
 }
 
-set -e
-
-START_SCRIPT="$1"
 
 # Setup users
-groupmod -o -g "$PGID" steam
-usermod -o -u "$PUID" steam
+usermod -o -u "$PUID" -g "$PGID" -d /home/gmod steam
 
 echo "
 User
 -------------------------------------
 User uid:    $(id -u steam)
-User gid:    $(id -g steam)
--------------------------------------
-"
+User gid:    $(id -g steam)"
 
 # Set owner of directories
-chown -R steam:steam /home/gmod
-chown steam:steam /data || true
+if [[ $PUID != 0 ]] || [[ $PGID != 0 ]]; then
+    echo ""
+    echo "Setting permissions, this may take a while..."
+    chown -R steam:steam /home/gmod
+    chown steam:steam /data
+fi
+
+echo "-------------------------------------"
 
 # early mounting
 process_mounts early
@@ -58,15 +56,12 @@ Update
 -------------------------------------
 "
 
-/home/gmod/update.sh /home/gmod/steamcmd /home/gmod/update.txt
+# su steam -P -c /home/gmod/update.sh
 
 echo "-------------------------------------"
 
 # deferred mounting
 process_mounts deferred
 
-# switch user
-su - steam
-
 # start server
-exec /usr/local/bin/ptyrun "$START_SCRIPT"
+exec su steam -P -c /home/gmod/start.sh
