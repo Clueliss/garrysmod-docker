@@ -1,0 +1,22 @@
+version: "3.3"
+services:
+    gmod:
+        image: clueliss/gmod-server:latest
+        ports:
+            - 27015:27015/tcp
+            - 27015:27015/udp
+            - 27005:27005/udp
+        environment:
+            - NAME=TTT
+            - GAMEMODE=terrortown
+            - ARGS=+host_workshop_collection ABC
+            - MAP=ttt_waterworld
+            - AUTHKEY=YOUR_AUTHKEY
+        volumes:
+            - ./data/steam_cache:/home/gmod/server/steam_cache
+            - ./data/garrysmod/cache:/home/gmod/server/garrysmod/cache
+            - ./data/garrysmod/gamemodes/terrortown:/home/gmod/server/garrysmod/gamemodes/terrortown:ro
+            - ./data/garrysmod/addons:/home/gmod/server/garrysmod/addons:ro
+            - ./data/garrysmod/cfg/server.cfg:/home/gmod/server/garrysmod/cfg/server.cfg:ro
+            - ./data/garrysmod/cfg/server.vdf:/home/gmod/server/garrysmod/cfg/server.vdf
+            - ./data/garrysmod/data:/home/gmod/server/garrysmod/data
