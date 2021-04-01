@@ -102,6 +102,12 @@ but it seems that it sometimes overwrites changes, so _when possible_ try to mou
 
 ## Examples
 
+This will start an example server via the provided example `docker-compose.yml`. Obviously you need to change the paths
+and environment variables in it to fit your needs.
+
+```sh
+docker-compose up -d
+```
 
 This will start a simple server in a container named `gmod-server`:
 ```sh
