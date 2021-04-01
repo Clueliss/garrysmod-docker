@@ -9,11 +9,10 @@ Run a Garry's Mod server easily inside a docker container
 
 ## Features
 
-* Run a server under a linux non-root user
+* Run a server under linux as any user
 * Run a server under an anonymous steam user
 * Run server commands normally
 * Installed CSS content
-* Check and update server automatically
 * Production and development build
 
 ## Documentation
@@ -27,12 +26,12 @@ You can read more about these ports on the [official srcds documentation][srcds-
 
 ### Environment variables
 
-**`PUID`/`PGID`**
+**`PUID` / `PGID`**
 
 When mounting volumes permission issues between host and container arise. To ensure the container accesses the volumes as the correct user
 the UID and GID can be set.
 
-Defaults are PUID = `0`, PGID = `0`.
+Default is `0` for both.
 
 **`PRODUCTION`**
 
@@ -61,6 +60,7 @@ Set the server port on container. Default is `27015`.
 **`CLIENTPORT`**
 
 **Warning**: for some unknown reason this feature does not seem to work.
+
 Set the client port on container. Default is `27005`.
 
 **`GSLT`**
@@ -85,16 +85,19 @@ but it seems that it sometimes overwrites changes, so _when possible_ try to mou
 |__📁server
 |  |__📁garrysmod
 |  |  |__📁addons // Put your addons here
-|  |  |__📁gamemodes
+|  |  |__📁gamemodes // Put your gamemodes here
 |  |  |__📁data
+|  |  |__📁cache
 |  |  |__📁cfg
 |  |  |  |__⚙️server.cfg
+|  |  |  |__⚙️server.vdf
 |  |  |__📁lua
 |  |  |__📁cfg
 |  |  |__💾sv.db
 |  |__📃srcds_run
+|  |__📁steam_cache
 |__📃start.sh // Script to start the server
-|__📃init.sh  // Init script for the container.
+|__📃init.sh // Init script for the container
 ```
 
 ## Examples
@@ -144,7 +147,7 @@ FROM clueliss/gmod-server:latest
 
 COPY ./deathrun-addons /home/gmod/server/garrysmod/addons
 
-ENV NAME="Lory | Deathrun ~ Have fun!"
+ENV NAME="Deathrun ~ Have fun!"
 ENV ARGS="+host_workshop_collection 382793424"
 ENV MAP="deathrun_atomic_warfare"
 ENV GAMEMODE="deathrun"
@@ -159,7 +162,7 @@ This image contains a health check to continually ensure the server is online. T
 
 ```sh
 CONTAINER ID        IMAGE                    COMMAND                 CREATED             STATUS                    PORTS                                                                                     NAMES
-e9c073a4b262        clueliss/gmod-server     "/home/gmod/start.sh"   21 minutes ago      Up 21 minutes (healthy)   0.0.0.0:27005->27005/tcp, 27005/udp, 0.0.0.0:27015->27015/tcp, 0.0.0.0:27015->27015/udp   distracted_cerf
+e9c073a4b262        clueliss/gmod-server     "/home/gmod/init.sh"   21 minutes ago      Up 21 minutes (healthy)   0.0.0.0:27005->27005/tcp, 27005/udp, 0.0.0.0:27015->27015/tcp, 0.0.0.0:27015->27015/udp   distracted_cerf
 ```
 
 You can also query the container's health in a script friendly way:
@@ -173,9 +176,6 @@ healthy
 
 This image is under the [MIT license](licence).
 
-## TODO:
-
-* Add multi-stages to build
 
 [docker-hub-repo]: https://hub.docker.com/r/clueliss/gmod-server "Docker hub repository"
 
