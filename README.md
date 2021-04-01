@@ -32,7 +32,7 @@ You can read more about these ports on the [official srcds documentation][srcds-
 When mounting volumes permission issues between host and container arise. To ensure the container accesses the volumes as the correct user
 the UID and GID can be set.
 
-Defaults are PUID=0, PGID=0.
+Defaults are PUID = `0`, PGID = `0`.
 
 **`PRODUCTION`**
 
@@ -108,7 +108,7 @@ docker run \
     -p 27005:27005/udp \
     --name gmod-server \
     -it \
-    ceifa/gmod-server
+    clueliss/gmod-server
 ```
 
 This will start a server with host workshop collection pointing to [382793424][workshop-example] named `gmod-server`:
@@ -119,7 +119,7 @@ docker run \
     -p 27005:27005/udp \
     -e ARGS="+host_workshop_collection 382793424" \
     -it \
-    ceifa/gmod-server
+    clueliss/gmod-server
 ```
 
 This will start a server named `my server` in production mode pointing to a local addons with a custom gamemode:
@@ -134,13 +134,13 @@ docker run \
     -e PRODUCTION=1 \
     -e GAMEMODE=darkrp \
     -it \
-    ceifa/gmod-server
+    clueliss/gmod-server
 ```
 
 You can create a new docker image using this image as base too:
 
 ```dockerfile
-FROM ceifa/gmod-server:latest
+FROM clueliss/gmod-server:latest
 
 COPY ./deathrun-addons /home/gmod/server/garrysmod/addons
 
@@ -159,7 +159,7 @@ This image contains a health check to continually ensure the server is online. T
 
 ```sh
 CONTAINER ID        IMAGE                    COMMAND                 CREATED             STATUS                    PORTS                                                                                     NAMES
-e9c073a4b262        ceifa/gmod-server        "/home/gmod/start.sh"   21 minutes ago      Up 21 minutes (healthy)   0.0.0.0:27005->27005/tcp, 27005/udp, 0.0.0.0:27015->27015/tcp, 0.0.0.0:27015->27015/udp   distracted_cerf
+e9c073a4b262        clueliss/gmod-server     "/home/gmod/start.sh"   21 minutes ago      Up 21 minutes (healthy)   0.0.0.0:27005->27005/tcp, 27005/udp, 0.0.0.0:27015->27015/tcp, 0.0.0.0:27015->27015/udp   distracted_cerf
 ```
 
 You can also query the container's health in a script friendly way:
@@ -177,12 +177,10 @@ This image is under the [MIT license](licence).
 
 * Add multi-stages to build
 
-[docker-hub-repo]: https://hub.docker.com/r/ceifa/garrysmod "Docker hub repository"
+[docker-hub-repo]: https://hub.docker.com/r/clueliss/gmod-server "Docker hub repository"
 
 [srcds-connectivity]: https://developer.valvesoftware.com/wiki/Source_Dedicated_Server#Connectivity "Valve srcds connectivity documentation"
 
 [workshop-example]: https://steamcommunity.com/sharedfiles/filedetails/?id=382793424 "Steam workshop collection"
 
-[lory-repo]: https://github.com/ceifa/lory-gmod-servers "Lory server repository"
-
-[licence]: https://github.com/ceifa/garrysmod-docker/blob/master/LICENSE "Licence of use"
+[licence]: https://github.com/clueliss/garrysmod-docker/blob/master/LICENSE "Licence of use"
