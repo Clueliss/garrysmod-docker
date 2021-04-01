@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ -n "${NAME}" ];
+if [ -n "${HOSTNAME}" ];
 then
-    ARGS="+hostname \"${NAME}\" ${ARGS}"
+    ARGS="+hostname \"${HOSTNAME}\" ${ARGS}"
 fi
 
 if [ -n "${GSLT}" ];
