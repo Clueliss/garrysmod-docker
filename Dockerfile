@@ -26,12 +26,15 @@ RUN wget -P /home/gmod/steamcmd/ https://steamcdn-a.akamaihd.net/client/installe
     && rm -rf /home/gmod/steamcmd/steamcmd_linux.tar.gz
 
 # SETUP STEAMCMD TO DOWNLOAD GMOD SERVER
-COPY assets/update.sh /home/gmod/update.sh
-RUN chmod +x /home/gmod/update.sh && \
-    /home/gmod/update.sh
+RUN /home/gmod/steamcmd/steamcmd.sh \
+    +login anonymous \
+    +force_install_dir /home/gmod/server \
+    +app_update 4020 validate \
+    +quit
 
 # SETUP CSS CONTENT
-RUN /home/gmod/steamcmd/steamcmd.sh +login anonymous \
+RUN /home/gmod/steamcmd/steamcmd.sh \
+    +login anonymous \
     +force_install_dir /home/gmod/temp \
     +app_update 232330 validate \
     +quit
@@ -69,10 +72,6 @@ ENV GAMEMODE="sandbox"
 ENV MAP="gm_construct"
 ENV PORT="27015"
 ENV CLIENTPORT="27005"
-
-
-# CREATE EMPTY MOUNTTAB
-RUN touch /etc/mounttab.conf
 
 # ADD INIT SCRIPT
 COPY assets/init.sh /home/gmod/init.sh
